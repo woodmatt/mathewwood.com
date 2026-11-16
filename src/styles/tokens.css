@@ -1,0 +1,147 @@
+/*
+ * Press Proof design tokens: the only place raw colours, type sizes, spacing and
+ * breakpoints are written. Components use var(--…). tests/tokens.test.ts enforces it.
+ *
+ * Breakpoints (media queries can't read custom properties, so these are the only two
+ * widths allowed in any @media rule):
+ *   md: (width >= 48rem)  → 8-column grid
+ *   lg: (width >= 64rem)  → 12-column grid
+ */
+@layer tokens {
+  :root {
+    /*
+     * Colour. Light ("paper stock") and dark ("black stock") values are kept as raw
+     * pairs, then combined with light-dark(), which follows the computed color-scheme
+     * (system preference, or the toggle's override; see base.css). Components use
+     * only the combined tokens. Contrast ratios: light / dark.
+     */
+    --paper-light: #f6f3ec;
+    --paper-dark: #1c1b19;
+    --paper-2-light: #ece7dc;
+    --paper-2-dark: #252421;
+    --paper-3-light: #d9d3c6;
+    --paper-3-dark: #34322e;
+    --ink-light: #16161a;
+    --ink-dark: #eeeae1;
+    --ink-2-light: #3a3833;
+    --ink-2-dark: #d2cdc3;
+    --ink-muted-light: #55524c;
+    --ink-muted-dark: #a9a49a;
+    --accent-light: #b0005a;
+    --accent-dark: #ff6eae;
+    --on-accent-light: #ffffff;
+    --on-accent-dark: #16161a;
+    --inverse-muted-light: #c9c5bc;
+    --inverse-muted-dark: #57534c;
+    --inverse-body-light: #e4e0d7;
+    --inverse-body-dark: #3a3833;
+    --solid-dark: #0f0f11;
+
+    --paper: light-dark(var(--paper-light), var(--paper-dark));
+    --paper-2: light-dark(var(--paper-2-light), var(--paper-2-dark));
+    --paper-3: light-dark(var(--paper-3-light), var(--paper-3-dark));
+    --ink: light-dark(var(--ink-light), var(--ink-dark)); /* 16.3 / 14.3 on --paper */
+    --ink-2: light-dark(var(--ink-2-light), var(--ink-2-dark)); /* 10.6 / 10.9 */
+    --ink-muted: light-dark(
+      var(--ink-muted-light),
+      var(--ink-muted-dark)
+    ); /* ≥5.2 / ≥5.2 on any paper */
+    --accent: light-dark(var(--accent-light), var(--accent-dark)); /* 6.3 / 6.6 on --paper */
+    --on-accent: light-dark(var(--on-accent-light), var(--on-accent-dark)); /* 7.0 / 7.0 */
+
+    /* Inverse: --ink used as a surface (K plate, pressed buttons, skip link). It flips
+       with the scheme, so it stays the most prominent thing on the page. */
+    --inverse-muted: light-dark(
+      var(--inverse-muted-light),
+      var(--inverse-muted-dark)
+    ); /* 10.5 / 6.4 on --ink */
+    --inverse-body: light-dark(
+      var(--inverse-body-light),
+      var(--inverse-body-dark)
+    ); /* 13.7 / 9.8 on --ink */
+
+    /* Solid: the footer. Stays dark in both schemes (deeper than the page in dark). */
+    --solid: light-dark(var(--ink-light), var(--solid-dark));
+    --on-solid: var(--paper-light); /* 16.3 / 17.3 */
+    --on-solid-muted: var(--inverse-muted-light); /* 10.5 / 11.1 */
+    --solid-rule: var(--ink-muted-light);
+    --solid-edge: light-dark(
+      var(--ink-light),
+      var(--paper-3-dark)
+    ); /* top edge: invisible in light */
+
+    /* Process colours are decoration only — never text. Same in both schemes. */
+    --process-c: #00a3d9;
+    --process-m: #d6006f;
+    --process-y: #f5d000;
+    --process-k: var(--ink);
+    --swatch-grey: #8c877d; /* colour-bar tint patch */
+
+    /* Type families */
+    --font-display: 'Fraunces Variable', Georgia, serif;
+    --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+    /* Type scale. Headings get their size once, in base.css. */
+    --text-2xs: 0.75rem; /* micro labels, tags */
+    --text-xs: 0.8125rem; /* mono labels */
+    --text-sm: 0.9375rem; /* secondary copy, captions */
+    --text-base: 1rem;
+    --text-lg: 1.125rem; /* long-form body, ledes on small pages */
+    --text-xl: 1.25rem; /* hero ledes, wordmark */
+    --text-2xl: clamp(1.375rem, 1.25rem + 0.5vw, 1.75rem); /* h3: cards, roles, plates */
+    --text-3xl: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem); /* h2 inside long-form copy */
+    --text-4xl: clamp(2rem, 1.4rem + 2.4vw, 3.5rem); /* h2: section titles */
+    --text-5xl: clamp(2.75rem, 1.5rem + 4vw, 5rem); /* display callouts */
+    --text-6xl: clamp(3.5rem, 2rem + 6vw, 7rem); /* h1 */
+
+    /* Display (headings, wordmark, plate names): change the look here, in one place. */
+    --display-weight: 600;
+    --display-case: none; /* 'uppercase' for all-caps headings */
+    --display-tracking: -0.015em;
+    --leading-display: 1;
+    --leading-snug: 1.4;
+    --leading-body: 1.55;
+    --tracking-label: 0.08em;
+
+    /* Spacing scale */
+    --space-3xs: 0.25rem;
+    --space-2xs: 0.5rem;
+    --space-xs: 0.75rem;
+    --space-s: 1rem;
+    --space-m: 1.5rem;
+    --space-l: 2rem;
+    --space-xl: 3rem;
+    --space-2xl: 4rem;
+    --space-3xl: 6rem;
+
+    /* Layout grid: 4 → 8 → 12 columns; the column gap equals the page gutter. */
+    --page-max: 77.5rem;
+    --gutter: clamp(1rem, 0.5rem + 2vw, 2rem);
+    --grid-columns: 4;
+    --grid-gap: var(--gutter);
+    --grid-row-gap: var(--space-xl);
+    --measure: 34em;
+
+    /* Lines, marks and targets */
+    --rule: 1px solid var(--ink);
+    --rule-medium: 1.5px solid var(--ink);
+    --rule-heavy: 2px solid var(--ink);
+    --tap-target: 44px;
+    --tap-target-lg: 48px;
+    --swatch: 14px;
+    --crop-mark: 18px;
+    --crop-offset: -10px;
+  }
+
+  @media (width >= 48rem) {
+    :root {
+      --grid-columns: 8;
+    }
+  }
+  @media (width >= 64rem) {
+    :root {
+      --grid-columns: 12;
+    }
+  }
+}

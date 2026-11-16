@@ -1,0 +1,149 @@
+---
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-sans/600.css';
+// Fraunces with weight + optical-size axes; opsz tracks font size automatically.
+import '@fontsource-variable/fraunces/opsz.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { site } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  page?: number;
+}
+
+const { title, description = site.description, page = 1 } = Astro.props;
+const fullTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.role}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+// Speculation Rules: prerender a same-site page once the visitor hovers its link, so
+// navigations (and their view transitions) are instant. Browsers without support ignore it.
+const speculationRules = {
+  prerender: [
+    {
+      where: {
+        and: [{ href_matches: '/*' }, { not: { selector_matches: '[download], [rel~=nofollow]' } }],
+      },
+      eagerness: 'moderate',
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Follow the system scheme; ThemeToggle pins "light" or "dark" here. Applying a stored
+         pin must happen before first paint, so this tiny script is inline and blocking. -->
+    <meta name="color-scheme" content="light dark" />
+    <script is:inline>
+      try {
+        var stored = localStorage.getItem('color-scheme');
+        if (stored === 'light' || stored === 'dark') document.currentScript.previousElementSibling.content = stored;
+      } catch (e) {}
+    </script>
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- Browser chrome colour = --paper-light / --paper-dark. ThemeToggle rewrites `media` when pinned. -->
+    <meta name="theme-color" content="#f6f3ec" media="(prefers-color-scheme: light)" data-scheme="light" />
+    <meta name="theme-color" content="#1c1b19" media="(prefers-color-scheme: dark)" data-scheme="dark" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="generator" content={Astro.generator} />
+    <script is:inline type="speculationrules" set:html={JSON.stringify(speculationRules)} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <SiteHeader page={page} />
+    <main id="main">
+      <slot />
+    </main>
+    <SiteFooter />
+    {
+      import.meta.env.DEV && (
+        <div class="grid-overlay" aria-hidden="true" hidden>
+          <div class="wrap grid">
+            {Array.from({ length: 12 }, () => (
+              <span />
+            ))}
+          </div>
+        </div>
+      )
+    }
+  </body>
+</html>
+
+{
+  import.meta.env.DEV && (
+    <script>
+      // Dev only: Shift+G toggles the layout-grid overlay.
+      document.addEventListener('keydown', (event) => {
+        const target = event.target as HTMLElement;
+        if (!event.shiftKey || event.key !== 'G' || target.closest('input, textarea, [contenteditable]')) return;
+        const overlay = document.querySelector<HTMLElement>('.grid-overlay');
+        if (overlay) overlay.hidden = !overlay.hidden;
+      });
+    </script>
+  )
+}
+
+<style>
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    .grid {
+      block-size: 100%;
+    }
+    span {
+      grid-column: auto;
+      background: color-mix(in srgb, var(--accent) 10%, transparent);
+      outline: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    }
+    span:nth-child(n + 5) {
+      display: none;
+    }
+    @media (width >= 48rem) {
+      span:nth-child(n + 5) {
+        display: block;
+      }
+      span:nth-child(n + 9) {
+        display: none;
+      }
+    }
+    @media (width >= 64rem) {
+      span:nth-child(n + 9) {
+        display: block;
+      }
+    }
+  }
+  .grid-overlay[hidden] {
+    display: none;
+  }
+</style>
+
+<style is:global>
+  /*
+   * Native cross-document View Transitions: zero JS, ignored where unsupported.
+   * Opted in only without a reduced-motion preference, so those users get an
+   * instant navigation rather than a crossfade and morph.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    @view-transition {
+      navigation: auto;
+    }
+  }
+</style>

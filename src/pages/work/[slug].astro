@@ -1,0 +1,200 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import CropFrame from '../../components/print/CropFrame.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
+    (a, b) => a.data.order - b.data.order,
+  );
+  return projects.map((project, i) => ({
+    params: { slug: project.id },
+    props: { project, prev: projects.at(i - 1), next: projects.at((i + 1) % projects.length) },
+  }));
+}
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  prev?: CollectionEntry<'projects'>;
+  next?: CollectionEntry<'projects'>;
+}
+
+const { project, prev, next } = Astro.props;
+const { Content } = await render(project);
+const hasBody = project.body?.replace(/<!--[\s\S]*?-->/g, '').trim();
+const { title, client, role, summary, stack, liveUrl, cover, coverAlt, gallery } = project.data;
+const imageWidths = [640, 960, 1280, 1600, 2400];
+---
+
+<BaseLayout title={title} description={summary} page={project.data.order + 2}>
+  <article class="wrap grid study" aria-labelledby="study-h">
+    <header class="head lg-span-8">
+      <p class="label accent">Plate {String(project.data.order).padStart(2, '0')} · Case study</p>
+      <h1 id="study-h">{title}</h1>
+      <p class="lede">{summary}</p>
+    </header>
+    <dl class="facts subgrid">
+      <div class="md-span-2 lg-span-3"><dt class="label">Client</dt><dd>{client}</dd></div>
+      <div class="md-span-2 lg-span-3"><dt class="label">Role</dt><dd>{role}</dd></div>
+      <div class="md-span-2 lg-span-3"><dt class="label">Stack</dt><dd>{stack.join(' · ')}</dd></div>
+      {
+        liveUrl && (
+          <div class="md-span-2 lg-span-3">
+            <dt class="label">Live site</dt>
+            <dd>
+              <a href={liveUrl}>Visit</a>
+            </dd>
+          </div>
+        )
+      }
+    </dl>
+    {
+      cover && (
+        <CropFrame class="cover">
+          <Image
+            src={cover}
+            alt={coverAlt ?? ''}
+            widths={imageWidths}
+            sizes="(min-width: 77.5rem) 73.5rem, calc(100vw - 2 * var(--gutter))"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </CropFrame>
+      )
+    }
+    <div class="prose lg-span-8">
+      {hasBody ? <Content /> : <p class="pending">The full write-up for this project is on press now.</p>}
+    </div>
+    {
+      gallery.length > 0 && (
+        <section class="gallery subgrid" aria-labelledby="screens-h">
+          <h2 id="screens-h" class="label">
+            Screens
+          </h2>
+          {gallery.map((shot) => (
+            <figure class="md-span-4 lg-span-6">
+              <Image
+                src={shot.src}
+                alt={shot.alt}
+                widths={imageWidths}
+                sizes="(min-width: 77.5rem) 36rem, (min-width: 48rem) 50vw, 100vw"
+              />
+              {shot.caption && <figcaption>{shot.caption}</figcaption>}
+            </figure>
+          ))}
+        </section>
+      )
+    }
+    <nav class="pager" aria-label="More case studies">
+      {
+        prev && prev !== project && (
+          <a href={`/work/${prev.id}/`}>
+            <span class="label">Previous</span>
+            {prev.data.title}
+          </a>
+        )
+      }
+      {
+        next && next !== project && (
+          <a href={`/work/${next.id}/`}>
+            <span class="label">Next</span>
+            {next.data.title}
+          </a>
+        )
+      }
+    </nav>
+  </article>
+</BaseLayout>
+
+<style>
+  .accent {
+    color: var(--accent);
+  }
+  .study {
+    row-gap: var(--space-2xl);
+    padding-block: var(--space-2xl) var(--space-3xl);
+  }
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+  }
+  .lede {
+    max-inline-size: var(--measure);
+    font-size: var(--text-xl);
+  }
+  .facts {
+    row-gap: var(--space-m);
+    div {
+      padding-block-start: var(--space-xs);
+      border-block-start: var(--rule-heavy);
+    }
+    dt {
+      color: var(--ink-muted);
+      font-size: var(--text-2xs);
+    }
+  }
+  .prose {
+    font-size: var(--text-lg);
+    :global(h2) {
+      margin-block: var(--space-xl) var(--space-s);
+      font-size: var(--text-3xl);
+    }
+    :global(p + p),
+    :global(p + ul),
+    :global(ul + p) {
+      margin-block-start: var(--space-s);
+    }
+    :global(ul) {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2xs);
+      padding-inline-start: var(--space-m);
+    }
+  }
+  .pending {
+    color: var(--ink-muted);
+  }
+  :global(.cover) img,
+  .gallery img {
+    inline-size: 100%;
+    block-size: auto;
+    border: var(--rule);
+  }
+  .gallery {
+    row-gap: var(--space-m);
+  }
+  .gallery h2 {
+    color: var(--ink-muted);
+  }
+  figure {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  figcaption {
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+  }
+  .pager {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding-block-start: var(--space-m);
+    border-block-start: var(--rule);
+    a {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3xs);
+      min-block-size: var(--tap-target);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .label {
+      color: var(--ink-muted);
+      font-weight: 400;
+    }
+  }
+</style>

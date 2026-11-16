@@ -1,0 +1,14 @@
+# Netlify's free plan meters production deploys, so only `main` deploys to production.
+# Branches and pull requests get deploy previews.
+[build]
+command = "pnpm exec vp run build"
+publish = "dist"
+
+[build.environment]
+NODE_VERSION = "22"
+ASTRO_TELEMETRY_DISABLED = "1"
+
+[[headers]]
+for = "/_astro/*"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"

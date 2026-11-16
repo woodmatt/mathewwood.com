@@ -1,0 +1,45 @@
+---
+// Wraps content with printer's crop marks at each corner.
+interface Props {
+  as?: 'div' | 'article' | 'section';
+  class?: string;
+}
+const { as: Tag = 'div', class: className } = Astro.props;
+---
+
+<Tag class:list={['crop', className]}>
+  <span class="mark tl" aria-hidden="true"></span>
+  <span class="mark tr" aria-hidden="true"></span>
+  <span class="mark bl" aria-hidden="true"></span>
+  <span class="mark br" aria-hidden="true"></span>
+  <slot />
+</Tag>
+
+<style>
+  .crop {
+    position: relative;
+  }
+  .mark {
+    position: absolute;
+    inline-size: var(--crop-mark);
+    block-size: var(--crop-mark);
+    border: 0 solid var(--ink);
+    pointer-events: none;
+  }
+  .tl {
+    inset: var(--crop-offset) auto auto var(--crop-offset);
+    border-width: 1px 0 0 1px;
+  }
+  .tr {
+    inset: var(--crop-offset) var(--crop-offset) auto auto;
+    border-width: 1px 1px 0 0;
+  }
+  .bl {
+    inset: auto auto var(--crop-offset) var(--crop-offset);
+    border-width: 0 0 1px 1px;
+  }
+  .br {
+    inset: auto var(--crop-offset) var(--crop-offset) auto;
+    border-width: 0 1px 1px 0;
+  }
+</style>

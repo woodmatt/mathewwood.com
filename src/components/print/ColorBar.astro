@@ -1,0 +1,24 @@
+---
+// Decorative press colour bar, like the strip on a press sheet. Sits on the footer's
+// --solid surface, so its tint patches use the fixed on-solid tones (same in both schemes).
+---
+
+<div class="color-bar" aria-hidden="true">
+  <span style="--c: var(--process-c)"></span>
+  <span style="--c: var(--process-m)"></span>
+  <span style="--c: var(--process-y)"></span>
+  <span style="--c: var(--on-solid)"></span>
+  <span style="--c: var(--swatch-grey)"></span>
+  <span style="--c: var(--on-solid-muted)"></span>
+</div>
+
+<style>
+  .color-bar {
+    display: flex;
+    span {
+      inline-size: calc(var(--swatch) * 1.5);
+      block-size: var(--swatch);
+      background: var(--c);
+    }
+  }
+</style>

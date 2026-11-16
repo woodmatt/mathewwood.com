@@ -1,0 +1,105 @@
+---
+import { site } from '../data/site';
+import RegMark from './print/RegMark.astro';
+import SlugLine from './print/SlugLine.astro';
+import ThemeToggle from './ThemeToggle.astro';
+
+interface Props {
+  page: number;
+}
+const { page } = Astro.props;
+const current = Astro.url.pathname;
+---
+
+<header class="wrap header">
+  <SlugLine page={page} />
+  <div class="bar">
+    <a class="brand" href="/">
+      <RegMark />
+      <span>{site.name}</span>
+    </a>
+    <div class="end">
+    <nav aria-label="Primary">
+      <ul>
+        {
+          site.nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={current === item.href ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <ThemeToggle />
+    </div>
+  </div>
+</header>
+
+<style>
+  .header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+    padding-block-start: var(--space-m);
+  }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding-block: var(--space-xs);
+    border-block-start: var(--rule-heavy);
+    border-block-end: var(--rule);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-block-size: var(--tap-target);
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    text-decoration: none;
+    text-transform: var(--display-case);
+  }
+  /* Nav and theme toggle travel together, so on phones they share the second row. */
+  .end {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    @media (width >= 48rem) {
+      flex-grow: 0;
+      gap: var(--space-l);
+    }
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    /* Tighter on phones so the four links and the toggle fit one row at 390px. */
+    gap: var(--space-3xs) var(--space-m);
+    @media (width >= 48rem) {
+      column-gap: var(--space-l);
+    }
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+  nav a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tap-target);
+    text-decoration: none;
+    &[aria-current='page'] {
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 6px;
+    }
+  }
+</style>

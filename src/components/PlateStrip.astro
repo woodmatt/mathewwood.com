@@ -1,0 +1,109 @@
+---
+// "Colour separation": the career as four printing plates, K (current) printed solid.
+const plates = [
+  {
+    key: 'C',
+    color: 'var(--process-c)',
+    years: '2003–2015',
+    name: 'Print & operations',
+    line: 'Large-format production to operations manager — running a shop floor and a $1M book.',
+  },
+  {
+    key: 'M',
+    color: 'var(--process-m)',
+    years: '1998–2001 · 2015–2019',
+    name: 'Graphic design',
+    line: 'Brand, layout and type for print and marketing, from trade show graphics to mailers.',
+  },
+  {
+    key: 'Y',
+    color: 'var(--process-y)',
+    years: '2019–2022',
+    name: 'Agency web',
+    line: '35+ responsive WordPress sites, custom post types and email templates.',
+  },
+  {
+    key: 'K',
+    color: 'var(--paper)',
+    years: '2022–now',
+    name: 'Front-end development',
+    line: 'Accessible, component-driven front ends from Figma to production.',
+  },
+] as const;
+---
+
+<section class="wrap strip" aria-labelledby="range-h">
+  <h2 id="range-h" class="label">Color separation — one career, four plates</h2>
+  <ol class="grid">
+    {
+      plates.map((p) => (
+        <li class:list={['md-span-4', 'lg-span-3', { solid: p.key === 'K' }]}>
+          <span class="meta label">
+            <span class="chip" style={`--c: ${p.color}`} aria-hidden="true" />
+            {p.key} · {p.years}
+          </span>
+          <strong>{p.name}</strong>
+          <span class="line">{p.line}</span>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .strip {
+    padding-block-end: var(--space-3xl);
+  }
+  h2 {
+    margin-block-end: var(--space-s);
+    color: var(--ink-muted);
+  }
+  ol {
+    row-gap: var(--grid-gap);
+    padding: 0;
+    list-style: none;
+  }
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding: var(--space-m);
+    border: var(--rule);
+  }
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    color: var(--ink-muted);
+    font-size: var(--text-2xs);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .chip {
+    inline-size: var(--swatch);
+    block-size: var(--swatch);
+    background: var(--c);
+  }
+  strong {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    line-height: var(--leading-display);
+    text-transform: var(--display-case);
+  }
+  .line {
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+  }
+  .solid {
+    background: var(--ink);
+    color: var(--paper);
+    .meta {
+      color: var(--inverse-muted);
+    }
+    .line {
+      color: var(--inverse-body);
+    }
+  }
+</style>

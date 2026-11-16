@@ -1,0 +1,81 @@
+---
+import { site } from '../data/site';
+import ColorBar from './print/ColorBar.astro';
+
+const year = new Date().getFullYear();
+---
+
+<footer id="contact" class="footer">
+  <div class="wrap grid inner">
+    <div class="cta lg-span-8">
+      <p class="label quiet">Ready for press</p>
+      <h2>Hiring a front‑end developer?</h2>
+      <ul class="links">
+        <li><a href={`mailto:${site.email}`}>{site.email}</a></li>
+        <li><a href={site.links.linkedin}>LinkedIn</a></li>
+        <li><a href={site.links.github}>GitHub</a></li>
+      </ul>
+    </div>
+    <div class="colophon label">
+      <ColorBar />
+      <span>© {year} {site.name} · Built with Astro · Set in Fraunces &amp; IBM Plex</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  /* --solid stays dark in both schemes; in dark mode it's deeper than the page,
+     with a rule to separate the two. */
+  .footer {
+    border-block-start: 1px solid var(--solid-edge);
+    background: var(--solid);
+    color: var(--on-solid);
+  }
+  .inner {
+    row-gap: var(--space-2xl);
+    padding-block: var(--space-3xl) var(--space-l);
+  }
+  .cta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+  }
+  h2 {
+    font-size: var(--text-5xl);
+  }
+  .quiet {
+    color: var(--on-solid-muted);
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs) var(--space-l);
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-lg);
+    font-weight: 500;
+  }
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tap-target);
+    &:hover {
+      color: var(--on-solid-muted);
+    }
+  }
+  .colophon {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding-block-start: var(--space-s);
+    border-block-start: 1px solid var(--solid-rule);
+    color: var(--on-solid-muted);
+    font-size: var(--text-2xs);
+    text-transform: none;
+  }
+  :focus-visible {
+    outline-color: var(--on-solid);
+  }
+</style>

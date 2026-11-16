@@ -1,0 +1,24 @@
+---
+interface Props {
+  page: number;
+}
+const { page } = Astro.props;
+---
+
+<div class="slug label" aria-hidden="true">
+  <span>MW_PORTFOLIO_2026.indd · Page {page}</span>
+  <span>Proof 04 · Approved for press</span>
+</div>
+
+<style>
+  .slug {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+    color: var(--ink-muted);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.04em;
+    text-transform: none;
+  }
+</style>

@@ -1,0 +1,234 @@
+---
+// Plain, single-column resume for ATS parsers and AI screening. Printed to
+// public/resume.pdf by `pnpm resume:pdf` (see scripts/resume-pdf.ts).
+// Deliberately free of the site's Press Proof styling: no columns, tables, icons or images.
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/600.css';
+import { getCollection } from 'astro:content';
+import { resume } from '../../data/resume';
+import { site } from '../../data/site';
+import { formatRange, newestFirst } from '../../lib/dates';
+
+const roles = newestFirst((await getCollection('experience')).map((e) => e.data));
+const detailed = roles.filter((r) => Number(r.start.slice(0, 4)) >= resume.detailFromYear);
+const earlier = roles.filter((r) => Number(r.start.slice(0, 4)) < resume.detailFromYear);
+
+// Fireant client work, listed under the current role.
+const current = detailed.find((r) => !r.end);
+const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const bare = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>{site.name} – {resume.headline} Resume</title>
+  </head>
+  <body>
+    <main>
+    <header>
+      <h1>{site.name}</h1>
+      <p class="headline">{resume.headline}</p>
+      <ul class="contact">
+        <li>{resume.location}</li>
+        <li data-private="email">{site.email}</li>
+        <li data-private="phone" hidden></li>
+        <li>{resume.website}</li>
+        <li>{bare(site.links.linkedin)}</li>
+        <li>{bare(site.links.github)}</li>
+      </ul>
+    </header>
+
+    <section>
+      <h2>Summary</h2>
+      <p>{resume.summary}</p>
+    </section>
+
+    <section>
+      <h2>Skills</h2>
+      <ul class="skills">
+        {
+          resume.skills.map((s) => (
+            <li>
+              <strong>{s.group}:</strong> {s.items.join(', ')}
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section>
+      <h2>Experience</h2>
+      {
+        detailed.map((role) => (
+          <article class="role">
+            <h3>
+              {role.title}, {role.company}
+            </h3>
+            <p class="meta">
+              {role.location} | {formatRange(role.start, role.end)}
+            </p>
+            <ul>
+              {role.bullets.map((b) => (
+                <li>{b}</li>
+              ))}
+            </ul>
+            {role === current && (
+              <>
+                <p class="sub">Selected client projects</p>
+                <ul>
+                  {projects.map((p) => (
+                    <li>
+                      <strong>{p.data.title}:</strong> {p.data.summary}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </article>
+        ))
+      }
+    </section>
+
+    <section>
+      <h2>Projects</h2>
+      {
+        resume.projects.map((p) => (
+          <article class="role">
+            <h3>
+              {p.name}, {p.context}
+            </h3>
+            <p class="meta">{p.stack}</p>
+            <ul>
+              {p.bullets.map((b) => (
+                <li>{b}</li>
+              ))}
+            </ul>
+          </article>
+        ))
+      }
+    </section>
+
+    <section>
+      <h2>Earlier Career</h2>
+      <p>{resume.earlierCareerIntro}</p>
+      <ul>
+        {
+          earlier.map((r) => (
+            <li>
+              {r.title}, {r.company}
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section>
+      <h2>Education</h2>
+      <p>{resume.education.degree}, {resume.education.school}</p>
+    </section>
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  @page {
+    size: letter;
+    margin: 0.55in 0.65in;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  html {
+    color: #111;
+    background: #fff;
+    font-family: 'IBM Plex Sans', Arial, sans-serif;
+    font-size: 10pt;
+    line-height: 1.38;
+  }
+  body {
+    max-width: 7.2in;
+    margin: 0 auto;
+  }
+  @media screen {
+    body {
+      padding: 0.5in 0;
+    }
+  }
+  h1,
+  h2,
+  h3,
+  p,
+  ul {
+    margin: 0;
+  }
+  h1 {
+    font-size: 20pt;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  .headline {
+    font-size: 12pt;
+    font-weight: 600;
+    margin-top: 2pt;
+  }
+  .contact {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    margin-top: 4pt;
+    list-style: none;
+    li + li::before {
+      content: ' | ';
+      white-space: pre;
+    }
+  }
+  section {
+    margin-top: 11pt;
+  }
+  h2 {
+    font-size: 11pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding-bottom: 2pt;
+    margin-bottom: 5pt;
+    border-bottom: 0.75pt solid #111;
+  }
+  h3 {
+    font-size: 10.5pt;
+    font-weight: 600;
+  }
+  .meta {
+    color: #333;
+  }
+  .sub {
+    font-weight: 600;
+    margin-top: 4pt;
+  }
+  ul {
+    padding-left: 14pt;
+  }
+  li {
+    margin-top: 1.5pt;
+  }
+  .skills {
+    padding-left: 0;
+    list-style: none;
+  }
+  .role {
+    break-inside: avoid-page;
+  }
+  .role + .role {
+    margin-top: 8pt;
+  }
+  section > p + ul {
+    margin-top: 3pt;
+  }
+</style>

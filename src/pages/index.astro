@@ -1,0 +1,155 @@
+---
+import { getCollection } from 'astro:content';
+import PlateStrip from '../components/PlateStrip.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { site } from '../data/site';
+import { skills } from '../data/skills';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const featured = projects.find((p) => p.data.featured) ?? projects[0];
+const rest = projects.filter((p) => p !== featured);
+const highlightGroups = skills.filter((s) => s.group !== 'Workflow');
+// On the 8-column grid skills sit two per row; an odd last one takes the full row.
+const isLastOdd = (i: number) => i === highlightGroups.length - 1 && highlightGroups.length % 2 === 1;
+---
+
+<BaseLayout>
+  <section class="wrap grid hero" aria-labelledby="hero-h">
+    <div class="hero-head lg-span-7">
+      <p class="label accent">{site.role} · {site.location}</p>
+      <h1 id="hero-h">From press checks to pull requests.</h1>
+    </div>
+    <div class="hero-body lg-span-5">
+      <p class="lede">
+        I build fast, accessible, design-faithful front ends. Before code, I spent years in graphic design and print
+        production — so I catch the kerning, the contrast ratio, and the edge case before QA does.
+      </p>
+      <div class="actions">
+        <a class="button primary" href="#work">See selected work</a>
+        <a class="button" href="/resume/">View resume</a>
+      </div>
+      <p class="label status"><span aria-hidden="true">●</span> {site.availability}</p>
+    </div>
+  </section>
+
+  <PlateStrip />
+
+  <section id="work" class="work" aria-labelledby="work-h">
+    <div class="wrap grid">
+      <div class="section-head">
+        <h2 id="work-h">Selected work</h2>
+        <p class="label muted">{projects.length} plates · case studies</p>
+      </div>
+      {featured && <ProjectCard project={featured} plate={1} featured />}
+      {rest.map((project, i) => <ProjectCard project={project} plate={i + 2} class="md-span-4 lg-span-6" />)}
+    </div>
+  </section>
+
+  <section id="about" class="wrap grid about" aria-labelledby="about-h">
+    <div class="about-copy lg-span-6">
+      <h2 id="about-h">Why the print background matters</h2>
+      <p>
+        Print taught me there is no “fix it after launch.” That habit carries into code: semantic markup, WCAG
+        accessibility from the first commit, and responsive QA against the design file until it matches.
+      </p>
+    </div>
+    <dl class="skills subgrid lg-span-6">
+      {
+        highlightGroups.map((s, i) => (
+          <div class:list={['lg-span-2', isLastOdd(i) ? 'md-span-8' : 'md-span-4']}>
+            <dt class="label accent">{s.group}</dt>
+            <dd>{s.items.join(' · ')}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+</BaseLayout>
+
+<style>
+  .accent {
+    color: var(--accent);
+  }
+  .muted {
+    color: var(--ink-muted);
+  }
+  .hero {
+    align-items: end;
+    padding-block: var(--space-3xl) var(--space-2xl);
+  }
+  .hero-head,
+  .hero-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+  }
+  .lede {
+    max-inline-size: var(--measure);
+    font-size: var(--text-xl);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+  .button {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tap-target-lg);
+    padding-inline: var(--space-m);
+    border: var(--rule-medium);
+    font-weight: 600;
+    text-decoration: none;
+    &.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: var(--on-accent);
+    }
+    &.primary:hover {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: var(--paper);
+    }
+  }
+  .status {
+    color: var(--ink-muted);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .work {
+    padding-block: var(--space-3xl);
+    background: var(--paper-2);
+  }
+  .section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding-block-end: var(--space-s);
+    border-block-end: var(--rule-heavy);
+  }
+  .about {
+    padding-block: var(--space-3xl);
+  }
+  .about-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    font-size: var(--text-lg);
+  }
+  .skills {
+    align-content: start;
+    row-gap: var(--space-l);
+    div {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2xs);
+      padding-block-start: var(--space-xs);
+      border-block-start: var(--rule-heavy);
+    }
+  }
+</style>

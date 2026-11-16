@@ -1,0 +1,120 @@
+---
+import { getCollection } from 'astro:content';
+import { site } from '../data/site';
+import { skills } from '../data/skills';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ResumeFilter from '../components/ResumeFilter';
+import { newestFirst } from '../lib/dates';
+
+const roles = newestFirst((await getCollection('experience')).map((e) => ({ id: e.id, ...e.data })));
+---
+
+<BaseLayout title="Resume" page={2} description={`Resume of ${site.name}, ${site.role.toLowerCase()} in ${site.location}.`}>
+  <section class="wrap grid intro" aria-labelledby="resume-h">
+    <div class="intro-copy lg-span-8">
+      <p class="label accent">{site.role} · {site.location}</p>
+      <h1 id="resume-h">Resume</h1>
+      <p class="lede">
+        Developer building responsive, accessible sites from design files to production. Seven years in web, on top
+        of two decades in graphic design and print production.
+      </p>
+    </div>
+    <a class="button primary lg-span-4" href="/resume.pdf" download="Mathew-Wood-Front-End-Developer-Resume.pdf">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"></path></svg>
+      Download PDF
+    </a>
+  </section>
+
+  <section class="wrap" aria-labelledby="exp-h">
+    <h2 id="exp-h">Experience</h2>
+    <ResumeFilter client:load roles={roles} />
+  </section>
+
+  <div class="wrap grid columns">
+    <section class="lg-span-7" aria-labelledby="skills-h">
+      <h2 id="skills-h">Skills &amp; tools</h2>
+      <dl class="skills">
+        {
+          skills.map((s) => (
+            <div>
+              <dt class="label accent">{s.group}</dt>
+              <dd>{s.items.join(' · ')}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+    <section class="lg-span-5" aria-labelledby="edu-h">
+      <h2 id="edu-h">Education</h2>
+      <div class="edu">
+        <p class="degree">A.A.S., Visual Communications</p>
+        <p>Colorado Institute of Art, Denver · 1998 · Dean’s List, all eight quarters</p>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .accent {
+    color: var(--accent);
+  }
+  .intro {
+    align-items: end;
+    padding-block: var(--space-2xl) var(--space-l);
+  }
+  .intro-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+  .lede {
+    max-inline-size: var(--measure);
+    font-size: var(--text-lg);
+  }
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    gap: var(--space-xs);
+    min-block-size: var(--tap-target-lg);
+    padding-inline: var(--space-m);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  @media (width >= 64rem) {
+    .button {
+      justify-self: end;
+    }
+  }
+  .primary {
+    background: var(--accent);
+    color: var(--on-accent);
+    &:hover {
+      background: var(--ink);
+      color: var(--paper);
+    }
+  }
+  h2 {
+    margin-block-end: var(--space-m);
+  }
+  .columns {
+    padding-block: var(--space-2xl) var(--space-3xl);
+  }
+  .skills {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+    div {
+      padding-block-start: var(--space-xs);
+      border-block-start: var(--rule);
+    }
+  }
+  .edu {
+    padding-block-start: var(--space-xs);
+    border-block-start: var(--rule);
+  }
+  .degree {
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+</style>

@@ -1,0 +1,32 @@
+name: CI
+
+# Runs on every push and pull request. Netlify deploys separately; this is the quality gate.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: voidzero-dev/setup-vp@v1.22.0
+        with:
+          node-version: '22'
+          run-install: true
+          cache: true
+          cache-save: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      - name: Generate Astro types (needed by the type-check on a fresh checkout)
+        run: pnpm astro sync
+      - name: Lint, format and type-check
+        run: vp check
+      - name: Unit tests (includes the design-token guard)
+        run: vp test --run
+      - name: Build
+        run: vp run build
+        env:
+          ASTRO_TELEMETRY_DISABLED: '1'
+      - name: Accessibility audit (light + dark, desktop + phone)
+        # GitHub's Ubuntu runners include Google Chrome, which the audit drives via playwright-core.
+        run: pnpm a11y

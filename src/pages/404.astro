@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Page not found" page={404}>
+  <section class="wrap grid lost" aria-labelledby="lost-h">
+    <div class="copy lg-span-8">
+      <p class="label">Error 404 · Misregistered</p>
+      <h1 id="lost-h">This page didn’t make it to press.</h1>
+      <p>The link may be old, or the page may have moved.</p>
+      <p class="links"><a href="/">Back to home</a> · <a href="/#work">See selected work</a></p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .lost {
+    padding-block: var(--space-3xl);
+  }
+  .copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    font-size: var(--text-lg);
+  }
+  .label {
+    color: var(--accent);
+  }
+  h1 {
+    max-inline-size: 14ch;
+  }
+  .links a {
+    font-weight: 600;
+  }
+</style>

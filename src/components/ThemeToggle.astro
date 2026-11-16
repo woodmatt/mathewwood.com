@@ -1,0 +1,114 @@
+---
+// Two-state colour-scheme toggle: follow the system, or pin the opposite scheme.
+// Logic lives in src/lib/theme.ts (unit tested). The inline script in BaseLayout
+// applies a stored pin before first paint; this script only handles clicks and sync.
+//
+// Both labels are in the markup; CSS (.if-light / .if-dark in base.css) shows the one
+// for the scheme on screen, and display: none also removes the other from the
+// accessibility tree, so the name stays right when the system preference changes.
+// A plain Astro script rather than a React island: no framework runtime for one button.
+---
+
+<button type="button" class="theme-toggle" data-theme-toggle>
+  <span class="if-light">
+    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+      <circle cx="12" cy="12" r="4.5"></circle>
+      <path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"></path>
+    </svg>
+    <span class="visually-hidden">Switch to dark theme</span>
+  </span>
+  <span class="if-dark">
+    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"></path>
+    </svg>
+    <span class="visually-hidden">Switch to light theme</span>
+  </span>
+</button>
+
+<script>
+  import {
+    STORAGE_KEY,
+    metaContent,
+    nextStored,
+    parseStored,
+    themeColorMedia,
+    type Scheme,
+    type Stored,
+  } from '../lib/theme';
+
+  const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function read(): Stored {
+    try {
+      return parseStored(localStorage.getItem(STORAGE_KEY));
+    } catch {
+      return null; // Site data blocked: follow the system.
+    }
+  }
+
+  function write(stored: Stored) {
+    try {
+      if (stored) localStorage.setItem(STORAGE_KEY, stored);
+      else localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Can't persist; the choice still applies to this page.
+    }
+  }
+
+  function apply(stored: Stored) {
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]');
+    if (meta) meta.content = metaContent(stored);
+    for (const tc of document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"][data-scheme]')) {
+      tc.media = themeColorMedia(tc.dataset.scheme as Scheme, stored);
+    }
+  }
+
+  let current = read();
+  apply(current);
+
+  for (const button of document.querySelectorAll('[data-theme-toggle]')) {
+    button.addEventListener('click', () => {
+      // Read the system preference at click time, so OS changes are always current.
+      current = nextStored(current, systemDark.matches);
+      write(current);
+      apply(current);
+    });
+  }
+
+  // Stay in sync when the setting changes elsewhere: another tab, a page restored
+  // from the back/forward cache, or a page prerendered (speculation rules) before a toggle.
+  const sync = () => {
+    current = read();
+    apply(current);
+  };
+  window.addEventListener('storage', (event) => {
+    if (event.key === STORAGE_KEY || event.key === null) sync();
+  });
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) sync();
+  });
+  document.addEventListener('prerenderingchange', sync);
+</script>
+
+<style>
+  .theme-toggle {
+    display: inline-grid;
+    place-items: center;
+    inline-size: var(--tap-target);
+    block-size: var(--tap-target);
+    padding: 0;
+    border: var(--rule);
+    border-radius: 0;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    &:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    /* It needs JavaScript; without it the site follows the system and the button is hidden. */
+    @media (scripting: none) {
+      display: none;
+    }
+  }
+</style>

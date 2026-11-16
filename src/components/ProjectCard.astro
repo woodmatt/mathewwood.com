@@ -1,0 +1,112 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import CropFrame from './print/CropFrame.astro';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  plate: number;
+  featured?: boolean;
+  /** Grid placement classes from the parent, e.g. "md-span-4 lg-span-6". */
+  class?: string;
+}
+
+const { project, plate, featured = false, class: placement } = Astro.props;
+const { title, summary, stack, cover, coverAlt } = project.data;
+const href = `/work/${project.id}/`;
+const plateLabel = `Plate ${String(plate).padStart(2, '0')}`;
+const headingId = `project-${project.id}`;
+// Featured: media on 7 of 12 columns. Standard: card on 6 of 12.
+const sizes = featured ? '(min-width: 64rem) 45rem, 100vw' : '(min-width: 64rem) 36rem, (min-width: 48rem) 50vw, 100vw';
+---
+
+<CropFrame as="article" class:list={['card', placement, { featured, subgrid: featured }]}>
+  <div class:list={['media', { 'lg-span-7': featured }]}>
+    {
+      cover ? (
+        <Image src={cover} alt={coverAlt ?? ''} widths={[480, 800, 1200, 1600]} sizes={sizes} />
+      ) : (
+        <span class="placeholder label">Screenshot coming soon</span>
+      )
+    }
+  </div>
+  <div class:list={['body', { 'lg-span-5': featured }]}>
+    <p class="label accent">{plateLabel}{featured && ' · Featured'}</p>
+    <h3 id={headingId}>{title}</h3>
+    <p class="summary">{summary}</p>
+    <ul class="tags label" aria-label="Stack">
+      {stack.map((s) => <li>{s}</li>)}
+    </ul>
+    <a class="more" href={href} aria-describedby={headingId}>Read the case study <span aria-hidden="true">→</span></a>
+  </div>
+</CropFrame>
+
+<style>
+  :global(.card) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+    padding: var(--space-m);
+    background: var(--paper);
+  }
+  :global(.card.featured) {
+    display: grid;
+    align-items: center;
+    column-gap: var(--grid-gap);
+    row-gap: var(--space-l);
+    padding: 0;
+    background: transparent;
+  }
+  .media {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--paper-3);
+    :global(img) {
+      inline-size: 100%;
+      block-size: 100%;
+      object-fit: cover;
+    }
+  }
+  .placeholder {
+    color: var(--ink-muted);
+    font-size: var(--text-2xs);
+  }
+  .body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+  .accent {
+    color: var(--accent);
+    font-size: var(--text-2xs);
+  }
+  :global(.featured) h3 {
+    font-size: var(--text-4xl);
+  }
+  :global(.featured) .summary {
+    font-size: var(--text-lg);
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-2xs);
+    letter-spacing: 0;
+    text-transform: none;
+    li {
+      padding: var(--space-3xs) var(--space-xs);
+      border: var(--rule);
+    }
+  }
+  .more {
+    display: inline-flex;
+    align-items: center;
+    align-self: start;
+    min-block-size: var(--tap-target);
+    font-weight: 600;
+  }
+</style>

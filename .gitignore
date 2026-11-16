@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+.astro/
+
+# Netlify CLI
+.netlify/
+
+# environment
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+*.log
+
+# private resume copies (phone number) and raw screenshot captures
+private/
+raw_screenshots/
