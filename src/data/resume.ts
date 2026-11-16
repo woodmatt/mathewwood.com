@@ -16,7 +16,8 @@ export const resume = {
     'Front-end developer with seven years building accessible, responsive WordPress sites from Figma designs, ' +
     'backed by two decades in graphic design and print production. Builds custom themes with PHP templating ' +
     '(Timber/Twig), Sass and vanilla JavaScript using native DOM APIs, and delivers to WCAG 2.1 AA. Works ' +
-    'alongside designers, developers and QA to turn designs into clean, modular, maintainable front ends.',
+    'alongside designers, developers and QA to turn designs into clean, modular, maintainable front ends, ' +
+    'and brings years of direct client communication by email, phone and in person.',
 
   /** Exact terms job postings use. Only list what the experience or projects below back up. */
   skills: [
@@ -61,7 +62,19 @@ export const resume = {
     },
     {
       group: 'Tools',
-      items: ['Git', 'Figma', 'Sketch', 'Adobe Creative Cloud', 'Astro', 'Vite', 'Node.js', 'pnpm'],
+      items: [
+        'Git',
+        'Gulp',
+        'Node.js',
+        'Vite',
+        'webpack',
+        'Astro',
+        'pnpm',
+        'Figma',
+        'Sketch',
+        'Adobe Creative Cloud',
+        'Wrike',
+      ],
     },
   ],
 
@@ -73,6 +86,7 @@ export const resume = {
       bullets: [
         'Static Astro site with React islands, strict TypeScript and typed content collections; the resume page and this PDF are generated from the same content files.',
         'Unit tests with Vitest and continuous integration on GitHub Actions; built to WCAG 2.2 AA with keyboard, screen reader and automated checks.',
+        'Source code: github.com/woodmatt/mathewwood.com',
       ],
     },
   ],
