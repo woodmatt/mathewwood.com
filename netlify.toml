@@ -12,3 +12,65 @@ ASTRO_TELEMETRY_DISABLED = "1"
 for = "/_astro/*"
 [headers.values]
 Cache-Control = "public, max-age=31536000, immutable"
+
+# Redirects from the old WordPress site, so existing links and search results land
+# somewhere useful. Netlify matches with or without the trailing slash. Rules run in
+# order: the five migrated case studies first, then a catch-all for the rest.
+# tests/redirects.test.ts checks that every target still exists.
+
+[[redirects]]
+from = "/project/colorado-geological-survey-website-build"
+to = "/work/colorado-geological-survey/"
+status = 301
+
+[[redirects]]
+from = "/project/csu-transportation-website-build"
+to = "/work/csu-parking/"
+status = 301
+
+[[redirects]]
+from = "/project/humane-colorado-website-build-rebrand"
+to = "/work/humane-colorado/"
+status = 301
+
+[[redirects]]
+from = "/project/minority-serving-cyberinfrastructure-consortium-ms-cc-design-refresh"
+to = "/work/ms-cc/"
+status = 301
+
+[[redirects]]
+from = "/project/remedy-medical-properties-theme-update"
+to = "/work/remedy-medical-properties/"
+status = 301
+
+# Projects not carried over (Colorado Horse Racing, Inspire Preschool, Valerian, Tingala).
+[[redirects]]
+from = "/project/*"
+to = "/#work"
+status = 301
+
+[[redirects]]
+from = "/digital-projects"
+to = "/#work"
+status = 301
+
+# Print work now lives in the resume's career history.
+[[redirects]]
+from = "/print-projects"
+to = "/resume/"
+status = 301
+
+[[redirects]]
+from = "/about"
+to = "/#about"
+status = 301
+
+[[redirects]]
+from = "/contact"
+to = "/#contact"
+status = 301
+
+[[redirects]]
+from = "/blog"
+to = "/"
+status = 301
